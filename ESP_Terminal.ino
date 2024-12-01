@@ -6,13 +6,10 @@
 void ParseTelnet(WiFiClient TCPclient);
 #define GFX_DEV_DEVICE WAVESHARE_ESP32_S3_TFT_4_3
 #define GFX_BL 2
-const char* ssid = "BT-Q6CTR8";     // CHANGE TO YOUR WIFI SSID
-const char* password = "c531a3d358"; // CHANGE TO YOUR WIFI PASSWORD
-const char* serverAddress = "192.168.1.110"; // CHANGE TO ESP32#2'S IP ADDRESS
+const char* ssid = "MySSID";     // CHANGE TO YOUR WIFI SSID
+const char* password = "MyPassword"; // CHANGE TO YOUR WIFI PASSWORD
 const int serverPort = 23;
-IPAddress raspberryIp (192, 168, 1, 110);
-const uint8_t noecho[]={0xFF,0xFB,0x01,0};   // IAC WILL ECHO Seems to work for most clients
-
+IPAddress raspberryIp (192, 168, 1, 110);    // Change to the address of a Raspberry Pi
 
 
 Arduino_ESP32RGBPanel* rgbpanel = new Arduino_ESP32RGBPanel(
@@ -70,7 +67,7 @@ void setup(void) {
     Serial.println("Connecting to WiFi...");
   }
   Serial.println("Connected to WiFi");
-  TCPclient.connect(serverAddress,serverPort);
+  TCPclient.connect(raspberryIp,serverPort);
   // Init Display
 #ifdef GFX_EXTRA_PRE_INIT
   GFX_EXTRA_PRE_INIT();
@@ -154,7 +151,7 @@ void loop() {
     TCPclient.stop();
 
     // reconnect to TCP server (Arduino #2)
-    if (TCPclient.connect(serverAddress, serverPort)) {
+    if (TCPclient.connect(raspberryIp, serverPort)) {
       Serial.println("Reconnected to TCP server");
     } else {
       Serial.println("Failed to reconnect to TCP server");
