@@ -1,3 +1,4 @@
+**ESP32_Telnet_Terminal**
 This simple application is a proof of concept build for the Waveshare 4.3" LCD Display
 See: https://www.waveshare.com/wiki/ESP32-S3-Touch-LCD-4.3
 It implements a basic green screen terminal display and contains a Telnet client with a minimal Telnet protocol function.
