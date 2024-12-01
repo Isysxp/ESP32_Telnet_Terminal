@@ -1,0 +1,35 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33815.320
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ESP_Terminal", "ESP_Terminal.vcxproj", "{49678033-6661-47D5-AACF-874D249ED928}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|ARM = Debug|ARM
+		Debug|ARM64 = Debug|ARM64
+		Release|ARM = Release|ARM
+		Release|ARM64 = Release|ARM64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{49678033-6661-47D5-AACF-874D249ED928}.Debug|ARM.ActiveCfg = Debug|ARM
+		{49678033-6661-47D5-AACF-874D249ED928}.Debug|ARM.Build.0 = Debug|ARM
+		{49678033-6661-47D5-AACF-874D249ED928}.Debug|ARM.Deploy.0 = Debug|ARM
+		{49678033-6661-47D5-AACF-874D249ED928}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{49678033-6661-47D5-AACF-874D249ED928}.Debug|ARM64.Build.0 = Debug|ARM64
+		{49678033-6661-47D5-AACF-874D249ED928}.Debug|ARM64.Deploy.0 = Debug|ARM64
+		{49678033-6661-47D5-AACF-874D249ED928}.Release|ARM.ActiveCfg = Release|ARM
+		{49678033-6661-47D5-AACF-874D249ED928}.Release|ARM.Build.0 = Release|ARM
+		{49678033-6661-47D5-AACF-874D249ED928}.Release|ARM.Deploy.0 = Release|ARM
+		{49678033-6661-47D5-AACF-874D249ED928}.Release|ARM64.ActiveCfg = Release|ARM64
+		{49678033-6661-47D5-AACF-874D249ED928}.Release|ARM64.Build.0 = Release|ARM64
+		{49678033-6661-47D5-AACF-874D249ED928}.Release|ARM64.Deploy.0 = Release|ARM64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F35A113B-1B79-4EFC-88A9-CC607D5E6691}
+	EndGlobalSection
+EndGlobal
