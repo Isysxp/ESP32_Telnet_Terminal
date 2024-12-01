@@ -6,8 +6,8 @@
 void ParseTelnet(WiFiClient TCPclient);
 #define GFX_DEV_DEVICE WAVESHARE_ESP32_S3_TFT_4_3
 #define GFX_BL 2
-const char* ssid = "MySSID";     // CHANGE TO YOUR WIFI SSID
-const char* password = "MyPassword"; // CHANGE TO YOUR WIFI PASSWORD
+const char* ssid = "BT-Q6CTR8";     // CHANGE TO YOUR WIFI SSID
+const char* password = "c531a3d358"; // CHANGE TO YOUR WIFI PASSWORD
 const int serverPort = 23;
 IPAddress raspberryIp (192, 168, 1, 110);    // Change to the address of a Raspberry Pi
 
@@ -113,10 +113,6 @@ void Display_Char(char ch) {
       case ('\r'):
         gfx->setCursor(0, (lnum)*20);
         break;
-      case (' '):
-        cx = gfx->getCursorX();
-        gfx->setCursor(cx + 10, (lnum)*20);
-        break;
       case (7):   // ^g (BEL)
         break;
       case ('\b'):
@@ -132,12 +128,13 @@ void Display_Char(char ch) {
         break;
       default:
         cx = gfx->getCursorX();
-        gfx->print(ch);
-        gfx->setCursor(cx + 10, (lnum)*20);
-        if (cx >= 790) {
-          gfx->setCursor(cx=0, (lnum)*20);
-          Display_Char('\n');
+        if (cx >= 800) {
+            gfx->setCursor(cx=0, (lnum) * 20);
+            Display_Char('\n');
         }
+        if (ch != ' ')
+            gfx->print(ch);
+        gfx->setCursor(cx + 10, (lnum)*20);
         break;
     }
 }
