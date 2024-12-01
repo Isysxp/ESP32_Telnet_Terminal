@@ -1,7 +1,7 @@
 //#define U8G2_USE_LARGE_FONTS
 #include <U8g2lib.h>
 #include <Arduino_GFX_Library.h>
-#include <font/MyFont.h>
+#include "src/MyFont.h"
 #include <WiFi.h>
 void ParseTelnet(WiFiClient TCPclient);
 #define GFX_DEV_DEVICE WAVESHARE_ESP32_S3_TFT_4_3

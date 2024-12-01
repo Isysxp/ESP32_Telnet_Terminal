@@ -24,5 +24,8 @@
     <ClInclude Include="__vm\.ESP_Terminal.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\MyFont.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

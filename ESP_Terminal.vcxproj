@@ -83,6 +83,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\MyFont.h" />
     <ClInclude Include="__vm\.ESP_Terminal.vsarduino.h" />
   </ItemGroup>
   <PropertyGroup>
