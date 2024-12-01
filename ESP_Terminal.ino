@@ -6,8 +6,8 @@
 void ParseTelnet(WiFiClient TCPclient);
 #define GFX_DEV_DEVICE WAVESHARE_ESP32_S3_TFT_4_3
 #define GFX_BL 2
-const char* ssid = "BT-Q6CTR8";     // CHANGE TO YOUR WIFI SSID
-const char* password = "c531a3d358"; // CHANGE TO YOUR WIFI PASSWORD
+const char* ssid = "MySSID";     // CHANGE TO YOUR WIFI SSID
+const char* password = "MyPassword"; // CHANGE TO YOUR WIFI PASSWORD
 const int serverPort = 23;
 IPAddress raspberryIp(192, 168, 1, 110);    // Change to the address of a Raspberry Pi
 
