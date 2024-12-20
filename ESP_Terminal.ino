@@ -52,17 +52,17 @@ Arduino_RGB_Display* gfx = new Arduino_RGB_Display(
 	0 /* rotation */,
 	true /* auto_flush */
 );
-uint8_t *fb;
-int lnum, altchar = 0, tflg=0, cflg=0;
+uint8_t* fb;
+int lnum, altchar = 0, tflg = 0, cflg = 0;
 WiFiClient TCPclient;
 int sz = 800 * 480 * 2;
 char lstc;
 
-hw_timer_t *Timer0_Cfg = NULL;
- 
+hw_timer_t* Timer0_Cfg = NULL;
+
 void IRAM_ATTR Timer0_ISR()
 {
-    tflg++;
+	tflg++;
 }
 
 void setup(void) {
@@ -86,7 +86,7 @@ void setup(void) {
 	}
 	gfx->fillScreen(BLACK);
 	gfx->setFont(&exportFont);
-  gfx->setTextSize(1,1);
+	gfx->setTextSize(1, 1);
 #ifdef GFX_BL
 	pinMode(GFX_BL, OUTPUT);
 	digitalWrite(GFX_BL, HIGH);
@@ -97,37 +97,37 @@ void setup(void) {
 	delay(1000);  // 5 seconds
 	gfx->fillScreen(BLACK);
 	fb = (uint8_t*)gfx->getFramebuffer();
-	gfx->setTextColor(DARKGREEN,DARKGREEN);
+	gfx->setTextColor(DARKGREEN, DARKGREEN);
 	lnum = 1;
 	gfx->setCursor(0, (lnum) * 20);
-  Timer0_Cfg = timerBegin(0, 80, true);
-  timerAttachInterrupt(Timer0_Cfg, &Timer0_ISR, true);
-  timerAlarmWrite(Timer0_Cfg, 300000, true);
-  timerAlarmEnable(Timer0_Cfg);
+	Timer0_Cfg = timerBegin(0, 80, true);
+	timerAttachInterrupt(Timer0_Cfg, &Timer0_ISR, true);
+	timerAlarmWrite(Timer0_Cfg, 300000, true);
+	timerAlarmEnable(Timer0_Cfg);
 
 }
 
 void scrollUp(int ofs) {
-	memcpy(fb + ofs , fb + ofs + 40 * 800, sz - (40 * 800 + ofs));
+	memcpy(fb + ofs, fb + ofs + 40 * 800, sz - (40 * 800 + ofs));
 	memset(fb + (40 * 23) * 800, 0, 800 * 40);
 	Cache_WriteBack_Addr((uint32_t)fb, sz);
 }
 
 void scrollDown(int ofs)
 {
-	memmove(fb + ofs + 40 * 800 , fb + ofs, sz - (40 * 800 + ofs));
+	memmove(fb + ofs + 40 * 800, fb + ofs, sz - (40 * 800 + ofs));
 	memset(fb + ofs, 0, 800 * 40);
 	Cache_WriteBack_Addr((uint32_t)fb, sz);
 }
 
 char recv_char()
 {
-  char ch;
+	char ch;
 
 	while (!TCPclient.available())
 		yield();
-  ch=TCPclient.read();
-  Serial.print(ch);
+	ch = TCPclient.read();
+	Serial.print(ch);
 	return (ch);
 }
 
@@ -165,14 +165,14 @@ void doesc(char ec)
 	}
 	else if (ec == 'J') {
 		//clear to end of screen
-    if (px>0)
-      px -= 10;
-    gfx->fillRect(px, lnum * 20, 800-px, -19, BLACK);  // Clear to end of line
-    gfx->fillRect(0,lnum*20,800,(24-lnum)*20,BLACK);
+		if (px > 0)
+			px -= 10;
+		gfx->fillRect(px, lnum * 20, 800 - px, -19, BLACK);  // Clear to end of line
+		gfx->fillRect(0, lnum * 20, 800, (24 - lnum) * 20, BLACK);
 	}
 	else if (ec == 'K') {
 		//clear to end of line
-    gfx->fillRect(px, lnum * 20, 800-px, -19, BLACK);
+		gfx->fillRect(px, lnum * 20, 800 - px, -19, BLACK);
 	}
 	else if (ec == 'L') {
 		scrollDown((py - 1) * 40 * 800);    //Insert a line and scroll down
@@ -192,13 +192,13 @@ void doesc(char ec)
 void Display_Char(char ch) {
 	int cx;
 
-  cx = gfx->getCursorX();
-  gfx->fillRect(cx, lnum * 20, 10, -4, BLACK);
-  gfx->setTextColor(DARKGREEN);
+	cx = gfx->getCursorX();
+	gfx->fillRect(cx, lnum * 20, 10, -4, BLACK);
+	gfx->setTextColor(DARKGREEN);
 
 	switch (ch) {
 	case (27):
-    ch=recv_char();
+		ch = recv_char();
 		doesc(ch);
 		break;
 	case ('\n'):
@@ -229,11 +229,11 @@ void Display_Char(char ch) {
 			gfx->setCursor(cx = 0, (lnum) * 20);
 			Display_Char('\n');
 		}
-    gfx->fillRect(cx, lnum * 20, 10, -19, BLACK);
-    if (ch != ' ')
-		  gfx->print(ch);
-    lstc=ch;
-  	gfx->setCursor(cx + 10, (lnum) * 20);
+		gfx->fillRect(cx, lnum * 20, 10, -19, BLACK);
+		if (ch != ' ')
+			gfx->print(ch);
+		lstc = ch;
+		gfx->setCursor(cx + 10, (lnum) * 20);
 		break;
 	}
 }
@@ -261,19 +261,20 @@ void loop() {
 		ch = Serial.read();
 		TCPclient.write(ch);
 	}
-  if (tflg) {
-  int px = gfx->getCursorX()-10;
-    tflg=0;
-    if (cflg) {
-      gfx->setTextColor(DARKGREEN);
-      gfx->print('_');
-      cflg=0;
-    } else {
-      cflg++;
-      gfx->setTextColor(GREEN);
-      gfx->print('_');
-    }
-    gfx->setCursor(px+10, (lnum) * 20);
-  }
+	if (tflg) {
+		int px = gfx->getCursorX() - 10;
+		tflg = 0;
+		if (cflg) {
+			gfx->setTextColor(DARKGREEN);
+			gfx->print('_');
+			cflg = 0;
+		}
+		else {
+			cflg++;
+			gfx->setTextColor(GREEN);
+			gfx->print('_');
+		}
+		gfx->setCursor(px + 10, (lnum) * 20);
+	}
 	yield();
 }
