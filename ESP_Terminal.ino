@@ -3,11 +3,12 @@
 #include <Arduino_GFX_Library.h>
 #include "src/MyFont.h"
 #include <WiFi.h>
+#include <string.h>
 void ParseTelnet(WiFiClient TCPclient);
 #define GFX_DEV_DEVICE WAVESHARE_ESP32_S3_TFT_4_3
 #define GFX_BL 2
-const char* ssid = "MySSID";     // CHANGE TO YOUR WIFI SSID
-const char* password = "MyPassword"; // CHANGE TO YOUR WIFI PASSWORD
+const char* ssid = "BT-Q6CTR8";     // CHANGE TO YOUR WIFI SSID
+const char* password = "c531a3d358"; // CHANGE TO YOUR WIFI PASSWORD
 const int serverPort = 23;
 IPAddress raspberryIp(192, 168, 1, 110);    // Change to the address of a Raspberry Pi
 
@@ -51,10 +52,18 @@ Arduino_RGB_Display* gfx = new Arduino_RGB_Display(
 	0 /* rotation */,
 	true /* auto_flush */
 );
-uint16_t* fb;
-int lnum;
+uint8_t *fb;
+int lnum, altchar = 0, tflg=0, cflg=0;
 WiFiClient TCPclient;
 int sz = 800 * 480 * 2;
+char lstc;
+
+hw_timer_t *Timer0_Cfg = NULL;
+ 
+void IRAM_ATTR Timer0_ISR()
+{
+    tflg++;
+}
 
 void setup(void) {
 	Serial.begin(115200);
@@ -77,37 +86,126 @@ void setup(void) {
 	}
 	gfx->fillScreen(BLACK);
 	gfx->setFont(&exportFont);
+  gfx->setTextSize(1,1);
 #ifdef GFX_BL
 	pinMode(GFX_BL, OUTPUT);
 	digitalWrite(GFX_BL, HIGH);
 #endif
-	gfx->setTextSize(1, 1);
 	gfx->setCursor(10, 20);
 	gfx->setTextColor(RED);
 	gfx->print("Terminal online");
 	delay(1000);  // 5 seconds
 	gfx->fillScreen(BLACK);
-	fb = gfx->getFramebuffer();
-	gfx->setTextColor(DARKGREEN);
+	fb = (uint8_t*)gfx->getFramebuffer();
+	gfx->setTextColor(DARKGREEN,DARKGREEN);
 	lnum = 1;
 	gfx->setCursor(0, (lnum) * 20);
+  Timer0_Cfg = timerBegin(0, 80, true);
+  timerAttachInterrupt(Timer0_Cfg, &Timer0_ISR, true);
+  timerAlarmWrite(Timer0_Cfg, 300000, true);
+  timerAlarmEnable(Timer0_Cfg);
+
 }
 
-void scroll() {
-	memcpy(fb, fb + 20 * 800, sz - 20 * 800);
-	memset(fb + (20 * 23) * 800, 0, 20 * 800 * 2);
+void scrollUp(int ofs) {
+	memcpy(fb + ofs , fb + ofs + 40 * 800, sz - (40 * 800 + ofs));
+	memset(fb + (40 * 23) * 800, 0, 800 * 40);
 	Cache_WriteBack_Addr((uint32_t)fb, sz);
+}
+
+void scrollDown(int ofs)
+{
+	memmove(fb + ofs + 40 * 800 , fb + ofs, sz - (40 * 800 + ofs));
+	memset(fb + ofs, 0, 800 * 40);
+	Cache_WriteBack_Addr((uint32_t)fb, sz);
+}
+
+char recv_char()
+{
+  char ch;
+
+	while (!TCPclient.available())
+		yield();
+  ch=TCPclient.read();
+  Serial.print(ch);
+	return (ch);
+}
+
+void doesc(char ec)
+{
+	int px = gfx->getCursorX();
+	int py = lnum, bgn, cnt;
+
+	if (ec == 'A') {
+		py = py - 1;
+	}
+	else if (ec == 'B') {
+		py = py + 1;
+	}
+	else if (ec == 'C') {
+		px = px + 10;
+	}
+	else if (ec == 'D') {
+		px = px - 10;
+	}
+	else if (ec == 'F') {
+		//enter gfx mode
+		altchar = 1;
+	}
+	else if (ec == 'G') {
+		//exit gfx mode
+		altchar = 0;
+	}
+	else if (ec == 'H') {
+		//home
+		px = 0; py = 1;
+	}
+	else if (ec == 'I') {
+		//reverse line feed
+	}
+	else if (ec == 'J') {
+		//clear to end of screen
+    if (px>0)
+      px -= 10;
+    gfx->fillRect(px, lnum * 20, 800-px, -19, BLACK);  // Clear to end of line
+    gfx->fillRect(0,lnum*20,800,(24-lnum)*20,BLACK);
+	}
+	else if (ec == 'K') {
+		//clear to end of line
+    gfx->fillRect(px, lnum * 20, 800-px, -19, BLACK);
+	}
+	else if (ec == 'L') {
+		scrollDown((py - 1) * 40 * 800);    //Insert a line and scroll down
+	}
+	else if (ec == 'M') {
+		scrollUp((py - 1) * 40 * 800);  		//Delete a line and scroll up
+	}
+	else if (ec == 'Y') {
+		//set cursor position
+		py = 1 + recv_char() - 32;
+		px = (recv_char() - 32) * 10;
+	}
+	lnum = py;
+	gfx->setCursor(px, (lnum) * 20);
 }
 
 void Display_Char(char ch) {
 	int cx;
+
+  cx = gfx->getCursorX();
+  gfx->fillRect(cx, lnum * 20, 10, -4, BLACK);
+  gfx->setTextColor(DARKGREEN);
+
 	switch (ch) {
+	case (27):
+    ch=recv_char();
+		doesc(ch);
+		break;
 	case ('\n'):
 		if (++lnum == 25) {
 			lnum--;
-			scroll();
+			scrollUp(0);
 		}
-		cx = gfx->getCursorX();
 		gfx->setCursor(cx, (lnum) * 20);
 		break;
 	case ('\r'):
@@ -119,7 +217,6 @@ void Display_Char(char ch) {
 		cx = gfx->getCursorX();
 		if (cx >= 0) {
 			gfx->setCursor(cx - 10, (lnum) * 20);
-			gfx->fillRect(cx - 10, lnum * 20, 10, -18, BLACK);
 		}
 		break;
 	case ('\t'):
@@ -132,9 +229,11 @@ void Display_Char(char ch) {
 			gfx->setCursor(cx = 0, (lnum) * 20);
 			Display_Char('\n');
 		}
-		if (ch != ' ')
-			gfx->print(ch);
-		gfx->setCursor(cx + 10, (lnum) * 20);
+    gfx->fillRect(cx, lnum * 20, 10, -19, BLACK);
+    if (ch != ' ')
+		  gfx->print(ch);
+    lstc=ch;
+  	gfx->setCursor(cx + 10, (lnum) * 20);
 		break;
 	}
 }
@@ -162,5 +261,19 @@ void loop() {
 		ch = Serial.read();
 		TCPclient.write(ch);
 	}
+  if (tflg) {
+  int px = gfx->getCursorX()-10;
+    tflg=0;
+    if (cflg) {
+      gfx->setTextColor(DARKGREEN);
+      gfx->print('_');
+      cflg=0;
+    } else {
+      cflg++;
+      gfx->setTextColor(GREEN);
+      gfx->print('_');
+    }
+    gfx->setCursor(px+10, (lnum) * 20);
+  }
 	yield();
 }
