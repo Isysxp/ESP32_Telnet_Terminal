@@ -131,52 +131,51 @@ char recv_char() {
 }
 
 void doesc(char ec) {
-  int px = gfx->getCursorX();
-  int py = lnum, bgn, cnt;
+  int cx = gfx->getCursorX();
+  int cy = lnum, bgn, cnt;
 
-  if (ec == 'A') {
-    py = py - 1;
-  } else if (ec == 'B') {
-    py = py + 1;
-  } else if (ec == 'C') {
-    px = px + 10;
-  } else if (ec == 'D') {
-    px = px - 10;
-  } else if (ec == 'F') {
-    //enter gfx mode
-    altchar = 1;
-  } else if (ec == 'G') {
-    //exit gfx mode
-    altchar = 0;
-  } else if (ec == 'H') {
-    //home
-    px = 0;
-    py = 1;
-  } else if (ec == 'I') {
-    //reverse line feed
-  } else if (ec == 'J') {
-    //clear to end of screen
-    if (px > 0)
-      px -= 10;
-    gfx->fillRect(px, lnum * 20, 800 - px, -20, BLACK);  // Clear to end of line
-    gfx->fillRect(0, lnum * 20, 800, (24 - lnum) * 20, BLACK);
-  } else if (ec == 'K') {
-    //clear to end of line
-    gfx->fillRect(px, lnum * 20, 800 - px, -20, BLACK);
-  } else if (ec == 'L') {
-    scrollDown((py - 1) * 40 * 800);  //Insert a line and scroll down
-  } else if (ec == 'M') {
-    scrollUp((py - 1) * 40 * 800);  //Delete a line and scroll up
-  } else if (ec == 'Y') {
-    //set cursor position
-    py = 1 + recv_char() - 32;
-    px = (recv_char() - 32) * 10;
-  } else if (ec == 'Z') {            // Identify terminal
-    TCPclient.write(27);
-    TCPclient.write("/K");
+  switch (ec) {
+    case 'A':
+      if (cy>1)
+        cy--;
+      break;
+    case 'B':
+        cy++;
+      break;
+    case 'C':
+      cx += 10;
+      break;
+    case 'D':
+      cx -= 10;
+      break;
+    case 'H':
+      cx = 0;
+      cy = 1;
+      break;
+    case 'I':
+      break;
+    case 'J':
+      if (cx > 0)
+        cx -= 10;
+      gfx->fillRect(cx, lnum * 20, 800 - cx, -20, BLACK);  // Clear to end of line
+      gfx->fillRect(0, lnum * 20, 800, (24 - lnum) * 20, BLACK);
+      break;
+    case 'K':
+      gfx->fillRect(cx, lnum * 20, 800 - cx, -20, BLACK);
+      break;
+    case 'L':
+      scrollDown((cy - 1) * 40 * 800);  //Insert a line and scroll down
+      break;
+    case 'M':
+      scrollUp((cy - 1) * 40 * 800);  //Delete a line and scroll up
+      break;
+    case 'Y':
+      cy = 1 + recv_char() - 32;      //set cursor position
+      cx = (recv_char() - 32) * 10;
+      break;
   }
-  lnum = py;
-  gfx->setCursor(px, (lnum)*20);
+  lnum = cy;
+  gfx->setCursor(cx, (lnum)*20);
 }
 
 void Display_Char(char ch) {
