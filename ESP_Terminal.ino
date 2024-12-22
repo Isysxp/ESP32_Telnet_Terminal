@@ -5,12 +5,13 @@
 #include <WiFi.h>
 #include <string.h>
 void ParseTelnet(WiFiClient TCPclient);
+void RawTelnet(WiFiClient TCPclient);
 #define GFX_DEV_DEVICE WAVESHARE_ESP32_S3_TFT_4_3
 #define GFX_BL 2
 const char* ssid = "BT-Q6CTR8";       // CHANGE TO YOUR WIFI SSID
 const char* password = "c531a3d358";  // CHANGE TO YOUR WIFI PASSWORD
 const int serverPort = 23;
-IPAddress raspberryIp(192, 168, 1, 110);  // Change to the address of a Raspberry Pi
+IPAddress raspberryIp(192, 168, 1, 228);  // Change to the address of a Raspberry Pi
 
 
 Arduino_ESP32RGBPanel* rgbpanel = new Arduino_ESP32RGBPanel(
@@ -70,6 +71,7 @@ void setup(void) {
   while (!Serial)
     ;
   // Connect to Wi-Fi
+  WiFi.setSleep(false);
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
@@ -156,11 +158,11 @@ void doesc(char ec) {
     //clear to end of screen
     if (px > 0)
       px -= 10;
-    gfx->fillRect(px, lnum * 20, 800 - px, -19, BLACK);  // Clear to end of line
+    gfx->fillRect(px, lnum * 20, 800 - px, -20, BLACK);  // Clear to end of line
     gfx->fillRect(0, lnum * 20, 800, (24 - lnum) * 20, BLACK);
   } else if (ec == 'K') {
     //clear to end of line
-    gfx->fillRect(px, lnum * 20, 800 - px, -19, BLACK);
+    gfx->fillRect(px, lnum * 20, 800 - px, -20, BLACK);
   } else if (ec == 'L') {
     scrollDown((py - 1) * 40 * 800);  //Insert a line and scroll down
   } else if (ec == 'M') {
@@ -169,6 +171,9 @@ void doesc(char ec) {
     //set cursor position
     py = 1 + recv_char() - 32;
     px = (recv_char() - 32) * 10;
+  } else if (ec == 'Z') {            // Identify terminal
+    TCPclient.write(27);
+    TCPclient.write("/K");
   }
   lnum = py;
   gfx->setCursor(px, (lnum)*20);
@@ -216,7 +221,7 @@ void Display_Char(char ch) {
       }
       if (ch) {
         if (ch != 0x0d)
-          gfx->fillRect(cx, lnum * 20, 10, -19, BLACK);
+          gfx->fillRect(cx, lnum * 20, 10, -20, BLACK);
         if (ch != ' ')
           gfx->print(ch);
         lstc = ch;
@@ -248,6 +253,7 @@ void loop() {
     ch = Serial.read();
     TCPclient.write(ch);
   }
+
   if (tflg) {
     int px = gfx->getCursorX() - 10;
     tflg = 0;
@@ -262,5 +268,4 @@ void loop() {
     }
     gfx->setCursor(px + 10, (lnum)*20);
   }
-  yield();
 }

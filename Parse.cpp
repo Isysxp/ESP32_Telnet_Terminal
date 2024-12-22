@@ -6,6 +6,7 @@
 #define         DO 253
 #define         DONT 254
 #define         IAC 255
+#define         ECHO 1
 #define         SGA 3
 void Display_Char(char ch);
 
@@ -36,7 +37,7 @@ void Display_Char(char ch);
                                 inputoption = TCPclient.read();
                                 if (inputoption == -1) break;
                                 TCPclient.write((byte)IAC);
-                                if (inputoption == (int)SGA)
+                                if (inputoption == (int)SGA || inputoption == ECHO)
                                     TCPclient.write(inputverb == DO ? WILL : DO);
                                 else
                                     TCPclient.write(inputverb == DO ? WONT : DONT);
@@ -52,4 +53,13 @@ void Display_Char(char ch);
                         break;
                 }
             }
+        }
+
+        void RawTelnet(WiFiClient TCPclient)
+        {
+          while (TCPclient.available()) {
+            int input = TCPclient.read();
+            Serial.print((char)input);
+            Display_Char((char)input);
+          }
         }
