@@ -4,6 +4,7 @@
 #include "src/MyFont.h"
 #include <WiFi.h>
 #include <string.h>
+#include "esp_wifi.h"
 void ParseTelnet(WiFiClient TCPclient);
 void RawTelnet(WiFiClient TCPclient);
 #define GFX_DEV_DEVICE WAVESHARE_ESP32_S3_TFT_4_3
@@ -11,7 +12,7 @@ void RawTelnet(WiFiClient TCPclient);
 const char* ssid = "BT-Q6CTR8";       // CHANGE TO YOUR WIFI SSID
 const char* password = "c531a3d358";  // CHANGE TO YOUR WIFI PASSWORD
 const int serverPort = 23;
-IPAddress raspberryIp(192, 168, 1, 228);  // Change to the address of a Raspberry Pi
+IPAddress raspberryIp(192, 168, 1, 110);  // Change to the address of a Raspberry Pi
 
 
 Arduino_ESP32RGBPanel* rgbpanel = new Arduino_ESP32RGBPanel(
@@ -71,7 +72,12 @@ void setup(void) {
   while (!Serial)
     ;
   // Connect to Wi-Fi
-  WiFi.setSleep(false);
+  WiFi.disconnect(true);
+  //Serial.flush();
+  delay(1000);
+  WiFi.useStaticBuffers(true);
+  WiFi.setMinSecurity(WIFI_AUTH_WPA_PSK);
+  WiFi.setSleep(WIFI_PS_NONE);
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
@@ -136,11 +142,11 @@ void doesc(char ec) {
 
   switch (ec) {
     case 'A':
-      if (cy>1)
+      if (cy > 1)
         cy--;
       break;
     case 'B':
-        cy++;
+      cy++;
       break;
     case 'C':
       cx += 10;
@@ -170,7 +176,7 @@ void doesc(char ec) {
       scrollUp((cy - 1) * 40 * 800);  //Delete a line and scroll up
       break;
     case 'Y':
-      cy = 1 + recv_char() - 32;      //set cursor position
+      cy = 1 + recv_char() - 32;  //set cursor position
       cx = (recv_char() - 32) * 10;
       break;
   }
@@ -233,38 +239,39 @@ void Display_Char(char ch) {
 void loop() {
 
   char ch;
+  while (1) {
+    if (!TCPclient.connected()) {
+      Serial.println("Connection is disconnected");
+      TCPclient.stop();
 
-  if (!TCPclient.connected()) {
-    Serial.println("Connection is disconnected");
-    TCPclient.stop();
-
-    // reconnect to TCP server (Arduino #2)
-    if (TCPclient.connect(raspberryIp, serverPort)) {
-      Serial.println("Reconnected to TCP server");
-    } else {
-      Serial.println("Failed to reconnect to TCP server");
+      // reconnect to TCP server (Arduino #2)
+      if (TCPclient.connect(raspberryIp, serverPort)) {
+        Serial.println("Reconnected to TCP server");
+      } else {
+        Serial.println("Failed to reconnect to TCP server");
+      }
     }
-  }
 
-  ParseTelnet(TCPclient);
+    ParseTelnet(TCPclient);
 
-  if (Serial.available()) {
-    ch = Serial.read();
-    TCPclient.write(ch);
-  }
-
-  if (tflg) {
-    int px = gfx->getCursorX() - 10;
-    tflg = 0;
-    if (cflg) {
-      gfx->setTextColor(DARKGREEN);
-      gfx->print('_');
-      cflg = 0;
-    } else {
-      cflg++;
-      gfx->setTextColor(WHITE);
-      gfx->print('_');
+    if (Serial.available()) {
+      ch = Serial.read();
+      TCPclient.write(ch);
     }
-    gfx->setCursor(px + 10, (lnum)*20);
+
+    if (tflg) {
+      int px = gfx->getCursorX() - 10;
+      tflg = 0;
+      if (cflg) {
+        gfx->setTextColor(DARKGREEN);
+        gfx->print('_');
+        cflg = 0;
+      } else {
+        cflg++;
+        gfx->setTextColor(WHITE);
+        gfx->print('_');
+      }
+      gfx->setCursor(px + 10, (lnum)*20);
+    }
   }
 }
