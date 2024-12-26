@@ -9,7 +9,7 @@ void ParseTelnet(WiFiClient TCPclient);
 void RawTelnet(WiFiClient TCPclient);
 #define GFX_DEV_DEVICE WAVESHARE_ESP32_S3_TFT_4_3
 #define GFX_BL 2
-const char* ssid = "BT-Q6CTR8";       // CHANGE TO YOUR WIFI SSID
+const char* ssid = "RaspiAP";       // CHANGE TO YOUR WIFI SSID
 const char* password = "c531a3d358";  // CHANGE TO YOUR WIFI PASSWORD
 const int serverPort = 23;
 IPAddress raspberryIp(192, 168, 1, 110);  // Change to the address of a Raspberry Pi
@@ -77,13 +77,15 @@ void setup(void) {
   delay(1000);
   WiFi.useStaticBuffers(true);
   WiFi.setMinSecurity(WIFI_AUTH_WPA_PSK);
-  WiFi.setSleep(WIFI_PS_NONE);
+  esp_wifi_set_ps(WIFI_PS_NONE);
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
     Serial.println("Connecting to WiFi...");
   }
   Serial.println("Connected to WiFi");
+  Serial.println("\e[?2lMode changed to VT52");
+
   TCPclient.connect(raspberryIp, serverPort);
   // Init Display
 #ifdef GFX_EXTRA_PRE_INIT
@@ -273,5 +275,6 @@ void loop() {
       }
       gfx->setCursor(px + 10, (lnum)*20);
     }
+    yield();
   }
 }
