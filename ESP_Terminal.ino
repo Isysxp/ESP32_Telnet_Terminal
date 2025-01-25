@@ -1,7 +1,7 @@
 //#define U8G2_USE_LARGE_FONTS
 #include <U8g2lib.h>
 #include <Arduino_GFX_Library.h>
-#include "src/MyFont.h"
+#include "src/FreeMono9pt7b_New.h"
 #include <WiFi.h>
 #include <string.h>
 #include "esp_wifi.h"
@@ -9,10 +9,10 @@ void ParseTelnet(WiFiClient TCPclient);
 void RawTelnet(WiFiClient TCPclient);
 #define GFX_DEV_DEVICE WAVESHARE_ESP32_S3_TFT_4_3
 #define GFX_BL 2
-const char* ssid = "RaspiAP";       // CHANGE TO YOUR WIFI SSID
-const char* password = "c531a3d358";  // CHANGE TO YOUR WIFI PASSWORD
+const char* ssid = "YOURSSID";       // CHANGE TO YOUR WIFI SSID
+const char* password = "YOURPASSWORD";  // CHANGE TO YOUR WIFI PASSWORD
 const int serverPort = 23;
-IPAddress raspberryIp(192, 168, 1, 110);  // Change to the address of a Raspberry Pi
+const char* nhost = "pion1";
 
 
 Arduino_ESP32RGBPanel* rgbpanel = new Arduino_ESP32RGBPanel(
@@ -86,7 +86,7 @@ void setup(void) {
   Serial.println("Connected to WiFi");
   Serial.println("\e[?2lMode changed to VT52");
 
-  TCPclient.connect(raspberryIp, serverPort);
+  TCPclient.connect(nhost, serverPort);
   // Init Display
 #ifdef GFX_EXTRA_PRE_INIT
   GFX_EXTRA_PRE_INIT();
@@ -95,25 +95,20 @@ void setup(void) {
     Serial.println("gfx->begin() failed!");
   }
   gfx->fillScreen(BLACK);
-  gfx->setFont(&exportFont);
+  gfx->setFont(&FreeMono9pt7b);
   gfx->setTextSize(1, 1);
 #ifdef GFX_BL
   pinMode(GFX_BL, OUTPUT);
   digitalWrite(GFX_BL, HIGH);
 #endif
-  gfx->setCursor(10, 20);
-  gfx->setTextColor(RED);
-  gfx->print("Terminal online");
-  delay(1000);  // 5 seconds
   gfx->fillScreen(BLACK);
   fb = (uint8_t*)gfx->getFramebuffer();
   gfx->setTextColor(DARKGREEN, DARKGREEN);
   lnum = 1;
   gfx->setCursor(0, (lnum)*20);
-  Timer0_Cfg = timerBegin(0, 80, true);
-  timerAttachInterrupt(Timer0_Cfg, &Timer0_ISR, true);
-  timerAlarmWrite(Timer0_Cfg, 300000, true);
-  timerAlarmEnable(Timer0_Cfg);
+  Timer0_Cfg = timerBegin(1000000);
+  timerAttachInterrupt(Timer0_Cfg, &Timer0_ISR);
+  timerAlarm(Timer0_Cfg, 300000, true, 0);
 }
 
 void scrollUp(int ofs) {
@@ -247,7 +242,7 @@ void loop() {
       TCPclient.stop();
 
       // reconnect to TCP server (Arduino #2)
-      if (TCPclient.connect(raspberryIp, serverPort)) {
+      if (TCPclient.connect(nhost, serverPort)) {
         Serial.println("Reconnected to TCP server");
       } else {
         Serial.println("Failed to reconnect to TCP server");

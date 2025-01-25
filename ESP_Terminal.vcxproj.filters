@@ -27,5 +27,8 @@
     <ClInclude Include="src\MyFont.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="__vm\.ESP32_Telnet_Terminal.vsarduino.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
