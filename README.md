@@ -29,3 +29,11 @@ For old unices eg BSD 2.11 use TERM=vt52; export TERM<br>
 I would note that the original VT52 terminal did not implement some escape codes. See: https://github.com/microsoft/terminal/blob/main/doc/specs/%23976%20-%20VT52%20escape%20sequences.md<br>
 Specifically, esc J and esc K are implemented in this app.<br>
 <br>
+NB: During the development of this app, it has become apparent that the LCD display can interfere with the WIFI such that
+a connection to a telnet server becomes very unreliable. After some considerable debugging the following is suggested for the Arduino environment:<br>
+1. Boards: ESP32 v 3.11<br>
+2. Library: GFX for Arduino v 1.5.2<br>
+3. Device: Waveshare ESP32-S3-LCD_4.3<br>
+4. Config: Upload mode UART0 / Hardware CDC + USB mode Hardware CDC and JTAG + PSRAM enabled.<br>
+#4 are the critical settings.<br>
+
