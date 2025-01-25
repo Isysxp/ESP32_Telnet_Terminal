@@ -26,6 +26,7 @@ This display app will now work with various versions of vi.<br>
 Setting the TERM variable is essential.<br>
 For most new Unices use: export TERM=vt52<br>
 For old unices eg BSD 2.11 use TERM=vt52; export TERM<br>
+The app also transmits ESC[?2l which should change your connected terminal to VT52 mode.<br>
 I would note that the original VT52 terminal did not implement some escape codes. See: https://github.com/microsoft/terminal/blob/main/doc/specs/%23976%20-%20VT52%20escape%20sequences.md<br>
 Specifically, esc J and esc K are implemented in this app.<br>
 <br>
