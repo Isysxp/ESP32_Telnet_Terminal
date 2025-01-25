@@ -33,7 +33,7 @@ NB: During the development of this app, it has become apparent that the LCD disp
 a connection to a telnet server becomes very unreliable. After some considerable debugging the following is suggested for the Arduino environment:<br>
 1. Boards: ESP32 v 3.11<br>
 2. Library: GFX for Arduino v 1.5.2<br>
-3. Device: Waveshare ESP32-S3-LCD_4.3<br>
+3. Device: Waveshare ESP32-S3-LCD-4.3<br>
 4. Config: Upload mode UART0 / Hardware CDC + USB mode Hardware CDC and JTAG + PSRAM enabled.<br>
-#4 are the critical settings.<br>
+#4 are the critical settings. In addition, altering the EXP32 TXPower seems to have an effect as well. Try: WiFi.setTxPower(WIFI_POWER_2dBm);<br>
 
