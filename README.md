@@ -26,6 +26,7 @@ This display app will now work with various versions of vi.<br>
 Setting the TERM variable is essential.<br>
 For most new Unices use: export TERM=vt52<br>
 For old unices eg BSD 2.11 use TERM=vt52; export TERM<br>
+The app also transmits ESC[?2l which should change your connected terminal to VT52 mode.<br>
 I would note that the original VT52 terminal did not implement some escape codes. See: https://github.com/microsoft/terminal/blob/main/doc/specs/%23976%20-%20VT52%20escape%20sequences.md<br>
 Specifically, esc J and esc K are implemented in this app.<br>
 <br>
@@ -35,5 +36,7 @@ a connection to a telnet server becomes very unreliable. After some considerable
 2. Library: GFX for Arduino v 1.5.2<br>
 3. Device: Waveshare ESP32-S3-LCD-4.3<br>
 4. Config: Upload mode UART0 / Hardware CDC + USB mode Hardware CDC and JTAG + PSRAM enabled.<br>
-#4 are the critical settings. In addition, altering the EXP32 TXPower seems to have an effect as well. Try: WiFi.setTxPower(WIFI_POWER_2dBm);<br>
+#4 are the critical settings. In addition, altering the EXP32 TXPower seems to have an effect as well. Try: iFi.setTxPower(WIFI_POWER_8_5dBm);<br>
+And, do not rest the display on an active HDMI cable. This does for the wifi as well!!!!<br>
+
 
