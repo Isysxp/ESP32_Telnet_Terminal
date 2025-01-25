@@ -9,10 +9,10 @@ void ParseTelnet(WiFiClient TCPclient);
 void RawTelnet(WiFiClient TCPclient);
 #define GFX_DEV_DEVICE WAVESHARE_ESP32_S3_TFT_4_3
 #define GFX_BL 2
-const char* ssid = "YOURSSID";       // CHANGE TO YOUR WIFI SSID
-const char* password = "YOURPASSWORD";  // CHANGE TO YOUR WIFI PASSWORD
+const char* ssid = "YOUR_SSID";       // CHANGE TO YOUR WIFI SSID
+const char* password = "YOUR_PASSWORD";  // CHANGE TO YOUR WIFI PASSWORD
 const int serverPort = 23;
-const char* nhost = "pion1";
+const char* nhost = "YOUR_TELNET_HOST";
 
 
 Arduino_ESP32RGBPanel* rgbpanel = new Arduino_ESP32RGBPanel(
@@ -78,6 +78,7 @@ void setup(void) {
   WiFi.useStaticBuffers(true);
   WiFi.setMinSecurity(WIFI_AUTH_WPA_PSK);
   esp_wifi_set_ps(WIFI_PS_NONE);
+  WiFi.setTxPower(WIFI_POWER_8_5dBm);
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
