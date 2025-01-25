@@ -36,5 +36,7 @@ a connection to a telnet server becomes very unreliable. After some considerable
 2. Library: GFX for Arduino v 1.5.2<br>
 3. Device: Waveshare ESP32-S3-LCD-4.3<br>
 4. Config: Upload mode UART0 / Hardware CDC + USB mode Hardware CDC and JTAG + PSRAM enabled.<br>
-#4 are the critical settings. In addition, altering the EXP32 TXPower seems to have an effect as well. Try: WiFi.setTxPower(WIFI_POWER_2dBm);<br>
+#4 are the critical settings. In addition, altering the EXP32 TXPower seems to have an effect as well. Try: iFi.setTxPower(WIFI_POWER_8_5dBm);<br>
+And, do not rest the display on an active HDMI cable. This does for the wifi as well!!!!<br>
+
 
