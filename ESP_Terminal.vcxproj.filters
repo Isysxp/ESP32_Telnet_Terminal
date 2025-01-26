@@ -15,10 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ESP_Terminal.ino" />
     <ClCompile Include="Parse.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ESP_Terminal.ino" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.ESP_Terminal.vsarduino.h">

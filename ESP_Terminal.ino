@@ -4,7 +4,7 @@
 #include "src/FreeMono9pt7b_New.h"
 #include <WiFi.h>
 #include <string.h>
-#include "esp_wifi.h"
+
 void ParseTelnet(WiFiClient TCPclient);
 void RawTelnet(WiFiClient TCPclient);
 #define GFX_DEV_DEVICE WAVESHARE_ESP32_S3_TFT_4_3
@@ -77,8 +77,9 @@ void setup(void) {
   delay(1000);
   WiFi.useStaticBuffers(true);
   WiFi.setMinSecurity(WIFI_AUTH_WPA_PSK);
-  esp_wifi_set_ps(WIFI_PS_NONE);
+  WiFi.setSleep(WIFI_PS_NONE);
   WiFi.setTxPower(WIFI_POWER_8_5dBm);
+  WiFi.setHostname("ESP_Terminal");
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
@@ -86,7 +87,7 @@ void setup(void) {
   }
   Serial.println("Connected to WiFi");
   Serial.println("\e[?2lMode changed to VT52");
-
+  Serial.println("IP address:" + WiFi.localIP().toString());
   TCPclient.connect(nhost, serverPort);
   // Init Display
 #ifdef GFX_EXTRA_PRE_INIT
