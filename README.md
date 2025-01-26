@@ -18,9 +18,11 @@ This is adequate for test purposes.
 The terminal app does not respond to VT100 escape sequnces. These may be disabled in the telnet session using
 export TERM=asr33
 unset LS_COLORS
-With these settings, the display is not too bad and backspace works as well.
+With these settings, the display is not too bad and backspace works as well.<br>
+I would note that sometime the display does not reset correctly such that the cursor is not at the top left of the screen.
+A power cycle usually fixes this.<br>
 I hope you find this of interest.
-<br>
+<br><br>
 Update Dec 2024 <br>
 This display app will now work with various versions of vi.<br>
 Setting the TERM variable is essential.<br>
@@ -36,7 +38,7 @@ a connection to a telnet server becomes very unreliable. After some considerable
 2. Library: GFX for Arduino v 1.5.2<br>
 3. Device: Waveshare ESP32-S3-LCD-4.3<br>
 4. Config: Upload mode UART0 / Hardware CDC + USB mode Hardware CDC and JTAG + PSRAM enabled.<br>
-#4 are the critical settings. In addition, altering the EXP32 TXPower seems to have an effect as well. Try: iFi.setTxPower(WIFI_POWER_8_5dBm);<br>
+#4 are the critical settings. In addition, altering the EXP32 TXPower seems to have an effect as well.<br>Try: WiFi.setTxPower(WIFI_POWER_8_5dBm);<br>
 And, do not rest the display on an active HDMI cable. This does for the wifi as well!!!!<br>
 
 
