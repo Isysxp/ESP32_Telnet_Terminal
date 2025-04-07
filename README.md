@@ -40,5 +40,8 @@ a connection to a telnet server becomes very unreliable. After some considerable
 4. Config: Upload mode UART0 / Hardware CDC + USB mode Hardware CDC and JTAG + PSRAM enabled.<br>
 #4 are the critical settings. In addition, altering the EXP32 TXPower seems to have an effect as well.<br>Try: WiFi.setTxPower(WIFI_POWER_8_5dBm);<br>
 And, do not rest the display on an active HDMI cable. This does for the wifi as well!!!!<br>
+<br>
+NB: This app seems to exacerbate the reported issue of ESP32s connecting to dual band routers. The ESP32 receives an IP address, connects to a host but fails to communicate any further.<br>
+However, if the display is disabled, the communcation is OK. I suspect that this may be a timing problem. Using a single band AP, the app works fine.<br>
 
 
