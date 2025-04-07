@@ -9,10 +9,11 @@ void ParseTelnet(WiFiClient TCPclient);
 void RawTelnet(WiFiClient TCPclient);
 #define GFX_DEV_DEVICE WAVESHARE_ESP32_S3_TFT_4_3
 #define GFX_BL 2
-const char* ssid = "YOUR_SSID";       // CHANGE TO YOUR WIFI SSID
-const char* password = "YOUR_PASSWORD";  // CHANGE TO YOUR WIFI PASSWORD
+const char* ssid = "BT-Q6CTR8";       // CHANGE TO YOUR WIFI SSID
+const char* password = "c531a3d358";  // CHANGE TO YOUR WIFI PASSWORD
 const int serverPort = 23;
-const char* nhost = "YOUR_TELNET_HOST";
+const char* nhost = "pion1";
+int keepAlive=1000;  // Milliseconds
 
 
 Arduino_ESP32RGBPanel* rgbpanel = new Arduino_ESP32RGBPanel(
@@ -74,21 +75,28 @@ void setup(void) {
   // Connect to Wi-Fi
   WiFi.disconnect(true);
   //Serial.flush();
-  delay(1000);
+  delay(3000);
   WiFi.useStaticBuffers(true);
-  WiFi.setMinSecurity(WIFI_AUTH_WPA_PSK);
+  WiFi.setMinSecurity(WIFI_AUTH_WPA2_PSK);
   WiFi.setSleep(WIFI_PS_NONE);
-  WiFi.setTxPower(WIFI_POWER_8_5dBm);
-  WiFi.setHostname("ESP_Terminal");
+  WiFi.setHostname("ESP-Terminal");
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
     Serial.println("Connecting to WiFi...");
   }
+  WiFi.dnsIP();
   Serial.println("Connected to WiFi");
+  WiFi.config(WiFi.localIP(), WiFi.gatewayIP(), WiFi.subnetMask(), IPAddress(192,168,1,254)); 
   Serial.println("\e[?2lMode changed to VT52");
   Serial.println("IP address:" + WiFi.localIP().toString());
-  TCPclient.connect(nhost, serverPort);
+  IPAddress hip(192,168,1,4);;
+  //WiFi.hostByName(nhost, hip);
+  Serial.println("Host:" + hip.toString());
+  TCPclient.setNoDelay(false);
+  TCPclient.connect(hip, serverPort);
+  while (!TCPclient.connected())
+    delay(10);
   // Init Display
 #ifdef GFX_EXTRA_PRE_INIT
   GFX_EXTRA_PRE_INIT();
@@ -246,6 +254,7 @@ void loop() {
       // reconnect to TCP server (Arduino #2)
       if (TCPclient.connect(nhost, serverPort)) {
         Serial.println("Reconnected to TCP server");
+        Serial.println("\e[?2lMode changed to VT52");
       } else {
         Serial.println("Failed to reconnect to TCP server");
       }

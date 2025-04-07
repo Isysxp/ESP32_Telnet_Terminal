@@ -49,7 +49,7 @@ void Display_Char(char ch);
                         break;
                     default:
                         Serial.print((char)input);
-                        Display_Char((char)input);
+                        //Display_Char((char)input);
                         break;
                 }
             }
@@ -60,6 +60,6 @@ void Display_Char(char ch);
           while (TCPclient.available()) {
             int input = TCPclient.read();
             Serial.print((char)input);
-            Display_Char((char)input);
+            //Display_Char((char)input);
           }
         }

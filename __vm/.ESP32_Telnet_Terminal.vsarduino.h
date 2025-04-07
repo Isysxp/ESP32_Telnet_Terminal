@@ -15,6 +15,6 @@
 #define _VSARDUINO_H_
 #include <arduino.h>
 #include <pins_arduino.h> 
-#include "..\ESP_Terminal.ino"
+#include "..\ESP32_Telnet_Terminal.ino"
 #endif
 #endif
