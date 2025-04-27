@@ -9,8 +9,8 @@ void ParseTelnet(WiFiClient TCPclient);
 void RawTelnet(WiFiClient TCPclient);
 #define GFX_DEV_DEVICE WAVESHARE_ESP32_S3_TFT_4_3
 #define GFX_BL 2
-const char* ssid = "BT-Q6CTR8";       // CHANGE TO YOUR WIFI SSID
-const char* password = "c531a3d358";  // CHANGE TO YOUR WIFI PASSWORD
+const char* ssid = "<Your SSID>";       // CHANGE TO YOUR WIFI SSID
+const char* password = "<Your password>";  // CHANGE TO YOUR WIFI PASSWORD
 const int serverPort = 23;
 const char* nhost = "pion1";
 int keepAlive=1000;  // Milliseconds
@@ -56,7 +56,7 @@ Arduino_RGB_Display* gfx = new Arduino_RGB_Display(
   true /* auto_flush */
 );
 uint8_t* fb;
-int lnum, altchar = 0, tflg = 0, cflg = 0;
+int lnum, altchar = 0, tflg = 0, cflg = 0, cenb = 1, escz = 0;
 WiFiClient TCPclient;
 int sz = 800 * 480 * 2;
 char lstc;
@@ -90,8 +90,8 @@ void setup(void) {
   WiFi.config(WiFi.localIP(), WiFi.gatewayIP(), WiFi.subnetMask(), IPAddress(192,168,1,254)); 
   Serial.println("\e[?2lMode changed to VT52");
   Serial.println("IP address:" + WiFi.localIP().toString());
-  IPAddress hip(192,168,1,4);;
-  //WiFi.hostByName(nhost, hip);
+  IPAddress hip(192,168,1,191);;
+  WiFi.hostByName(nhost, hip);
   Serial.println("Host:" + hip.toString());
   TCPclient.setNoDelay(false);
   TCPclient.connect(hip, serverPort);
@@ -145,7 +145,8 @@ char recv_char() {
 
 void doesc(char ec) {
   int cx = gfx->getCursorX();
-  int cy = lnum, bgn, cnt;
+  int cy = lnum, bgn, cnt, ch;
+  int cr[2],*crp;
 
   switch (ec) {
     case 'A':
@@ -165,6 +166,7 @@ void doesc(char ec) {
       cx = 0;
       cy = 1;
       break;
+    case '=':
     case 'I':
       break;
     case 'J':
@@ -186,15 +188,62 @@ void doesc(char ec) {
       cy = 1 + recv_char() - 32;  //set cursor position
       cx = (recv_char() - 32) * 10;
       break;
+    case 'Z':
+      escz++;
+      break;
+    case '(':
+      ch=recv_char();
+      if (ch != '0')
+      break;
+        ch=recv_char();
+        gfx->setTextColor(WHITE, WHITE);
+        gfx->print('$');
+        gfx->setTextColor(DARKGREEN);
+      break;
+    case '[':
+      memset(cr,0,sizeof(cr));
+      crp=cr;
+      while (1) {
+        ch=recv_char();
+        if (ch == 'K') {
+          gfx->fillRect(cx, lnum * 20, 800 - cx, -20, BLACK);  // Clear to end of line
+          break;          
+        }
+        if (ch == 'J') {
+          gfx->fillRect(cx, lnum * 20, 800 - cx, -20, BLACK);  // Clear to end of line
+          gfx->fillRect(0, lnum * 20, 800, (24 - lnum) * 20, BLACK);
+          break;
+        }
+        if (ch == 'm')
+          break;
+        if (ch == 'H') {
+          cy = cr[0];
+          cx = cr[1]*10-10;
+          break;
+        }
+        if (ch == ';') {
+          crp++;
+          continue;
+        }
+        if (ch < '0' || ch > '9')
+          break;
+        *crp=*crp*10+(ch-'0');
+      }
+      break;
   }
   lnum = cy;
   gfx->setCursor(cx, (lnum)*20);
 }
 
+
 void Display_Char(char ch) {
   int cx;
 
   cx = gfx->getCursorX();
+  cenb=0;
+  gfx->setTextColor(BLACK);
+  gfx->print('_');
+  gfx->setCursor(cx, (lnum)*20);
   gfx->fillRect(cx, lnum * 20, 10, -4, BLACK);
   gfx->setTextColor(DARKGREEN);
 
@@ -241,6 +290,7 @@ void Display_Char(char ch) {
       }
       break;
   }
+  cenb=1;
 }
 
 void loop() {
@@ -267,7 +317,7 @@ void loop() {
       TCPclient.write(ch);
     }
 
-    if (tflg) {
+    if (tflg && cenb) {
       int px = gfx->getCursorX() - 10;
       tflg = 0;
       if (cflg) {
